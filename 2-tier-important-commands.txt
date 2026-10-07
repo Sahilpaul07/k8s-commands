@@ -1,0 +1,41 @@
+# Docker
+sudo apt install docker.io -y
+sudo systemctl enable --now docker
+sudo docker ps
+
+# Kubernetes installation
+sudo apt install -y kubeadm kubelet kubectl
+sudo apt-mark hold kubeadm kubelet kubectl
+
+# Create Kubernetes cluster
+sudo kubeadm init --apiserver-advertise-address=172.31.3.111 --pod-network-cidr=10.244.0.0/16
+
+# Check cluster
+kubectl get nodes
+kubectl get pods -A
+
+# Flannel CNI
+kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+
+kubectl get pods -n kube-flannel -o wide
+kubectl get nodes
+
+# Worker join command
+kubeadm token create --print-join-command
+
+# Kubernetes containers
+sudo crictl ps
+sudo crictl ps -a
+sudo crictl ps -a | grep kube-apiserver
+sudo crictl ps -a | grep etcd
+
+# Kubernetes troubleshooting
+sudo crictl logs <container-id> --tail=100
+sudo journalctl -u kubelet --no-pager -n 100
+
+# Specific Kubernetes components
+kubectl logs -n kube-system -l k8s-app=kube-proxy --tail=30
+kubectl logs -n kube-system kube-controller-manager-ip-172-31-3-111 --tail=30
+kubectl describe pod -n kube-flannel -l app=flannel
+kubectl logs -n kube-flannel -l app=flannel --tail=50
+
